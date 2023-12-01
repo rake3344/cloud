@@ -5,13 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Files extends Model
+class Folder extends Model
 {
     use HasFactory;
 
-    public function folders()
+    public function files()
     {
-        return $this->belongsToMany(Folder::class)
-            ->withTimestamps();
+        return $this->belongsToMany(Files::class);
     }
 }
