@@ -15,3 +15,17 @@ export const createFolder = (name) => {
     return error;
   }
 };
+
+export const getFolder = async (folder_id) => {
+  try {
+    const res = await axios.get(`/folder/${folder_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res;
+  } catch (error) {
+    return error;
+  }
+};

@@ -23,7 +23,7 @@ body::-webkit-scrollbar-thumb {
   grid-template-rows: 1fr auto;
   margin: auto;
   margin-top: 25px;
-  height: 100vh;
+  /* height: 100vh; */
   background-color: #f4f6f8;
 }
 
@@ -38,4 +38,29 @@ section {
   background-color: white;
   border-radius: 10px;
   margin-right: 15px;
+  height: 800px;
+  overflow: auto;
+}
+
+section::-webkit-scrollbar {
+  width: 5px;
+}
+
+section::-webkit-scrollbar-thumb {
+  background: #1a73e8;
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 768px) {
+  .home-container {
+    grid-template-areas: "aside" "section";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    margin: auto;
+    margin-top: 25px;
+    height: 100vh;
+  }
+  section {
+    margin-right: 0;
+  }
 }

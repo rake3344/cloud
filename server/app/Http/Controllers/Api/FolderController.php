@@ -52,7 +52,19 @@ class FolderController extends Controller
     public function show(string $id)
     {
         //
-        $folderFiles = Folder::find($id)->files;
+        try{
+            $folderFiles = Folder::with('files')->find($id);
+            return response()->json([
+                'folderFiles' => $folderFiles,
+                'status' => 200
+            ], 200);
+        } catch(\Exception $e) {
+            return response()->json([
+                'message' => 'failed to get folder',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
 
     /**

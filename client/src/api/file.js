@@ -15,6 +15,19 @@ export const uploadFile = async (file) => {
   }
 };
 
+export const uploadFileToFolder = async (file, folderId) => {
+  try {
+    const response = axios.post(`/file-folder/${folderId}`, file, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getFiles = async () => {
   try {
     const res = await axios.get("/files", {

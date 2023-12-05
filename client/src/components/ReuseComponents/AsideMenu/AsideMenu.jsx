@@ -31,7 +31,7 @@ export default function AsideMenu() {
         formData.append("file", file);
         const res = await uploadFile(formData);
         if (res && res.data.message == "file uploaded successfully") {
-            alert("file uploaded successfully");
+            window.location.reload();
         } else if (res && res.data.message == "storage is full") {
             toast.error(res.data.message, {
                 position: "top-right",
@@ -72,13 +72,13 @@ export default function AsideMenu() {
         <div className="nuevo-container">
           <button className="nuevo-btn" onClick={handleNuevoMenu}>
             <FaPlus className="plus-icon" />
-            Nuevo
+            New
           </button>
           {nuevoMenu && (
             <div className="nuevo-menu">
               <label htmlFor="file-upload" className="menu-item">
                 <MdDriveFileMoveOutline className="icon" />
-                Subir archivo
+                Upload File
                 <input
                   type="file"
                   id="file-upload"
@@ -88,7 +88,7 @@ export default function AsideMenu() {
               </label>
               <div className="menu-item" onClick={handleOpenNewFolderModal}>
                 <MdOutlineFolderOpen className="icon" />
-                Crear carpeta
+                New Folder
               </div>
             </div>
           )}
@@ -101,16 +101,16 @@ export default function AsideMenu() {
                 className={`menu ${title == "home" ? "active" : ""}`}
               >
                 <BsDeviceSsd className="icon" />
-                Mi unidad
+                My Files
               </Link>
             </li>
             <li>
               <Link
-                to=""
-                className={`menu ${title == "compartidos" ? "active" : ""}`}
+                to="/shares"
+                className={`menu ${title == "share" ? "active" : ""}`}
               >
                 <MdOutlineShare className="icon" />
-                Compartidos
+                Share With Me
               </Link>
             </li>
             <li>
@@ -119,10 +119,10 @@ export default function AsideMenu() {
                 className={`menu ${title == "Destacados" ? "active" : ""}`}
               >
                 <MdStarOutline className="icon" />
-                Destacados
+                Favorites
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to=""
                 className={`menu ${title == "Papelera" ? "active" : ""}`}
@@ -130,14 +130,14 @@ export default function AsideMenu() {
                 <BsTrash className="icon" />
                 Papelera
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
                 to=""
                 className={`menu ${title == "Almacenamiento" ? "active" : ""}`}
               >
                 <MdOutlineCloud className="icon" />
-                Almacenamiento
+                Storage
               </Link>
             </li>
           </ul>

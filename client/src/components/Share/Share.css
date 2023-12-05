@@ -1,0 +1,10 @@
+.owner-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.owner-avatar {
+    margin-right: 10px;
+}

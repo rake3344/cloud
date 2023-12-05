@@ -69,7 +69,11 @@ class UserController extends Controller
     {
         //
         $users = User::all();
-        return response()->json(compact('users'));
+        return response()->json([
+            'message' => 'Users found',
+            'users' => $users
+        ], 200);
+        
     }
 
     /**

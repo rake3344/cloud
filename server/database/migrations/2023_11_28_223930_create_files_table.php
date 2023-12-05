@@ -17,6 +17,7 @@ return new class extends Migration
             $table->double('file_size');
             $table->string('file_type');
             $table->string('file_path');
+            $table->boolean('is_folder_file')->default(false);
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

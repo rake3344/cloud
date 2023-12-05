@@ -7,6 +7,7 @@ use App\Models\Files;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -22,7 +23,7 @@ class FileController extends Controller
 
             $user = JWTAuth::parseToken()->authenticate();
             // $files = User::find($user->id)->with('files')->get();
-            $files = User::find($user->id)->files;
+            $files = User::find($user->id)->files->where('is_folder_file', false);
             $folders = User::find($user->id)->folders;
 
             return response()->json([
@@ -43,64 +44,148 @@ class FileController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, $id = null)
+    public function store(Request $request)
     {
         //
         try {
-            $file = $request->file('file');
-            $getSizeFileInMb = $file->getSize() / 1024 / 1024;
-            $fileName = $file->getClientOriginalName();
-            $fileExtension = $file->getClientOriginalExtension();
-            $parseSize = number_format($getSizeFileInMb, 2);
 
-            $userToken = JWTAuth::parseToken()->authenticate();
-            $user = User::find($userToken->id);
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $getSizeFileInMb = $file->getSize() / 1024 / 1024;
+                $fileName = $file->getClientOriginalName();
+                $fileExtension = $file->getClientOriginalExtension();
+                $parseSize = number_format($getSizeFileInMb, 2);
 
-            $userStorage = $user->storage + $parseSize;
+                $userToken = JWTAuth::parseToken()->authenticate();
+                $user = User::find($userToken->id);
 
-            if ($userStorage <= 300) {
+                $userStorage = $user->storage + $parseSize;
 
-                $imagesExt = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'tif'];
+                if ($userStorage <= 300) {
 
-                $newFile = new Files();
-                $newFile->file_name = $fileName;
-                $newFile->file_size = $parseSize;
-                $newFile->file_type = $fileExtension;
-                $newFile->user_id = $userToken->id;
+                    $imagesExt = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'tif'];
 
-                $fileExt = strtolower($fileExtension);
-                
-                if(in_array($fileExt,$imagesExt) ){
-                    $file_path = Storage::disk('s3')->put('images', $file);
+                    $newFile = new Files();
+                    $newFile->file_name = $fileName;
+                    $newFile->file_size = $parseSize;
+                    $newFile->file_type = $fileExtension;
+                    $newFile->user_id = $userToken->id;
+
+                    $fileExt = strtolower($fileExtension);
+                    
+                    if(in_array($fileExt,$imagesExt) ){
+                        $file_path = Storage::disk('s3')->put('images', $file);
+                    } else {
+                        $file_path = Storage::disk('s3')->put('files', $file);
+                    }
+
+                    $newFile->file_path = $file_path;
+                    $newFile->save();
+
+                    $user->storage = $userStorage;
+                    $user->save();
+
+                    // if ($request->data->folder_id !== null) {
+                    //     DB::table('files_folder')->insert([
+                    //         'files_id' => $newFile->id,
+                    //         'folder_id' => $request->data->folder_id
+                    //     ]);
+                    //     $newFile->is_folder_file = true;
+                    //     $newFile->save();
+                    // }
+
+
                 } else {
-                    $file_path = Storage::disk('s3')->put('files', $file);
+                    return response()->json([
+                        'message' => 'storage is full',
+                        'status' => 'failed'
+                    ], 200);
                 }
-
-                $newFile->file_path = $file_path;
-                $newFile->save();
-
-                $user->storage = $userStorage;
-                $user->save();
-
-                if($id !== null) {
-                    DB::table('files_folder')->insert([
-                        'files_id' => $newFile->id,
-                        'folder_id' => $id
-                    ]);
-                }
-
-
             } else {
                 return response()->json([
-                    'message' => 'storage is full',
+                    'message' => 'file not found',
                     'status' => 'failed'
-                ], 200);
+                ], 400);
             }
 
             return response()->json([
                 'message' => 'file uploaded successfully',
-                'status' => 200,
-                'id' => $id
+                'status' => 200
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'file upload failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function uploadFileToFolder(Request $request, $id)
+    {
+        try {
+
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $getSizeFileInMb = $file->getSize() / 1024 / 1024;
+                $fileName = $file->getClientOriginalName();
+                $fileExtension = $file->getClientOriginalExtension();
+                $parseSize = number_format($getSizeFileInMb, 2);
+
+                $userToken = JWTAuth::parseToken()->authenticate();
+                $user = User::find($userToken->id);
+
+                $userStorage = $user->storage + $parseSize;
+
+                if ($userStorage <= 300) {
+
+                    $imagesExt = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'tif'];
+
+                    $newFile = new Files();
+                    $newFile->file_name = $fileName;
+                    $newFile->file_size = $parseSize;
+                    $newFile->file_type = $fileExtension;
+                    $newFile->user_id = $userToken->id;
+
+                    $fileExt = strtolower($fileExtension);
+                    
+                    if(in_array($fileExt,$imagesExt) ){
+                        $file_path = Storage::disk('s3')->put('images', $file);
+                    } else {
+                        $file_path = Storage::disk('s3')->put('files', $file);
+                    }
+
+                    $newFile->file_path = $file_path;
+                    $newFile->save();
+
+                    $user->storage = $userStorage;
+                    $user->save();
+
+                    DB::table('files_folder')->insert([
+                        'files_id' => $newFile->id,
+                        'folder_id' => $id
+                    ]);
+                    $newFile->is_folder_file = true;
+                    $newFile->save();
+
+                } else {
+                    return response()->json([
+                        'message' => 'storage is full',
+                        'status' => 'failed'
+                    ], 200);
+                }
+            } else {
+                return response()->json([
+                    'message' => 'file not found',
+                    'status' => 'failed'
+                ], 400);
+            }
+
+
+
+
+            return response()->json([
+                'message' => 'file uploaded successfully',
+                'status' => 200
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -134,10 +219,17 @@ class FileController extends Controller
         //
         try{
 
+            $userLogin =  JWTAuth::parseToken()->authenticate();
+            $user = User::find($userLogin->id);
             $file = Files::find($id);
+
+            $newUserStorage = $user->storage - $file->file_size;
 
             Storage::disk('s3')->delete($file->file_path);
 
+            $user->storage = $newUserStorage;
+
+            $user->save();
             $file->delete();
 
             return response()->json([
