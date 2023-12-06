@@ -22,8 +22,7 @@ class FileController extends Controller
         try {
 
             $user = JWTAuth::parseToken()->authenticate();
-            // $files = User::find($user->id)->with('files')->get();
-            $files = User::find($user->id)->files->where('is_folder_file', false);
+            $files = User::find($user->id)->with('files')->get();
             $folders = User::find($user->id)->folders;
 
             return response()->json([
@@ -72,27 +71,22 @@ class FileController extends Controller
                     $newFile->user_id = $userToken->id;
 
                     $fileExt = strtolower($fileExtension);
+
+                    $urlObject = "https://camilocloud-bucket-s3.s3.amazonaws.com/";
                     
                     if(in_array($fileExt,$imagesExt) ){
-                        $file_path = Storage::disk('s3')->put('images', $file);
+                        $file_path = Storage::disk('s3')->put('images', $file, 'public');
+                        $file_url = $urlObject . $file_path;
                     } else {
-                        $file_path = Storage::disk('s3')->put('files', $file);
+                        $file_path = Storage::disk('s3')->put('files', $file, 'public');
+                        $file_url = $urlObject . $file_path;
                     }
 
-                    $newFile->file_path = $file_path;
+                    $newFile->file_path = $file_url;
                     $newFile->save();
 
                     $user->storage = $userStorage;
                     $user->save();
-
-                    // if ($request->data->folder_id !== null) {
-                    //     DB::table('files_folder')->insert([
-                    //         'files_id' => $newFile->id,
-                    //         'folder_id' => $request->data->folder_id
-                    //     ]);
-                    //     $newFile->is_folder_file = true;
-                    //     $newFile->save();
-                    // }
 
 
                 } else {
@@ -147,14 +141,18 @@ class FileController extends Controller
                     $newFile->user_id = $userToken->id;
 
                     $fileExt = strtolower($fileExtension);
+
+                    $urlObject = "https://camilocloud-bucket-s3.s3.amazonaws.com/";
                     
                     if(in_array($fileExt,$imagesExt) ){
-                        $file_path = Storage::disk('s3')->put('images', $file);
+                        $file_path = Storage::disk('s3')->put('images', $file, 'public');
+                        $file_url = $urlObject . $file_path;
                     } else {
-                        $file_path = Storage::disk('s3')->put('files', $file);
+                        $file_path = Storage::disk('s3')->put('files', $file, 'public');
+                        $file_url = $urlObject . $file_path;
                     }
 
-                    $newFile->file_path = $file_path;
+                    $newFile->file_path = $file_url;
                     $newFile->save();
 
                     $user->storage = $userStorage;
