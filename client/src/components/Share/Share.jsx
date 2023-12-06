@@ -21,16 +21,18 @@ import ClipLoader from "react-spinners/ClipLoader";
 import Avatar from "react-avatar";
 import dayjs from "dayjs";
 import { override } from "../../api/loaderStyle";
-// import axios from 'axios';
-// import { toast } from 'react-toastify';
+import FileModal from "../ReuseComponents/FileModal/FileModal";
+
 
 export default function Share() {
   document.title = "share";
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [fileId, setFileId] = useState(null);
-  // const [ openShareModal, setOpenShareModal ] = useState(false);
+  const [fileUrl, setFileUrl] = useState(null);
+  const [fileType, setFileType] = useState(null);
+  const [fileName, setFileName] = useState(null);
+  const [openFileModal, setOpenFileModal] = useState(false);
 
   useEffect(() => {
     const res = async () => {
@@ -44,13 +46,14 @@ export default function Share() {
     res();
   }, []);
 
-  // const handleOpenShareModal = () => {
-  //     setOpenShareModal(!openShareModal);
-  // }
 
-  // const handleCloseModal = () => {
-  //     setOpenShareModal(false);
-  // }
+  const handleOpenFileModal = () => {
+    setOpenFileModal(!openFileModal);
+  };
+
+  const handleCloseFileModal = () => {
+    setOpenFileModal(false);
+  };
 
   return (
     <>
@@ -104,7 +107,12 @@ export default function Share() {
                         }
                         return (
                           <TableRow key={file.id} className="table-row">
-                            <TableCell>
+                            <TableCell onClick={() => {
+                              setFileUrl(file.files.file_path);
+                              setFileType(file.files.file_type);
+                              setFileName(file.files.file_name);
+                              handleOpenFileModal();
+                            }}>
                               {fileIcon}
                               {file.files.file_name}
                             </TableCell>
@@ -135,19 +143,6 @@ export default function Share() {
                                     <MdDownload className="actions-icon" />
                                   </a>
                                 </button>
-                                {/* <button onClick={() => {
-                                                                        setFileId(file.files.id);
-                                                                        handleOpenShareModal();
-                                                                    }}>
-                                                                        <MdShare className="actions-icon" />
-                                                                    </button> */}
-                                {/* <button
-                                                                        onClick={async () => {
-                                                                            
-                                                                        }}
-                                                                    >
-                                                                        <MdOutlineDelete className="actions-icon" />
-                                                                    </button> */}
                               </div>
                             </TableCell>
                           </TableRow>
@@ -165,6 +160,16 @@ export default function Share() {
           )}
         </section>
       </div>
+      {
+        openFileModal && (
+          <FileModal 
+            fileUrl={fileUrl}
+            fileType={fileType}
+            fileName={fileName}
+            closeModal={handleCloseFileModal}
+          />
+        )
+      }
     </>
   );
 }

@@ -102,3 +102,10 @@
   .menu-item:hover {
     background-color: rgba(66, 133, 244, 0.1)
   }
+
+  .progressbar-container {
+    width: 88%;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    margin-top: 10px;
+  }

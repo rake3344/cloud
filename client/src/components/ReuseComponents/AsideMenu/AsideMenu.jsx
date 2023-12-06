@@ -12,6 +12,7 @@ import { MdOutlineFolderOpen } from "react-icons/md";
 import { uploadFile } from "../../../api/file";
 import NewFolder from "../NewFolder/NewFolder";
 import { toast } from "react-toastify";
+import ProgressBar from "../ProgressBar/ProgressBar";
 
 export default function AsideMenu() {
 
@@ -19,6 +20,7 @@ export default function AsideMenu() {
 
   const [nuevoMenu, setNuevoMenu] = useState(false);
   const [openNewFolderModal, setOpenNewFolderModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleNuevoMenu = () => {
     setNuevoMenu(!nuevoMenu);
@@ -26,11 +28,13 @@ export default function AsideMenu() {
 
   const handleFileUpload = async (e) => {
     try {
+        setLoading(true);
         const file = e.target.files[0];
         const formData = new FormData();
         formData.append("file", file);
         const res = await uploadFile(formData);
         if (res && res.data.message == "file uploaded successfully") {
+            setLoading(false);
             window.location.reload();
         } else if (res && res.data.message == "storage is full") {
             toast.error(res.data.message, {
@@ -113,7 +117,7 @@ export default function AsideMenu() {
                 Share With Me
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to="/destacados"
                 className={`menu ${title == "Destacados" ? "active" : ""}`}
@@ -121,7 +125,7 @@ export default function AsideMenu() {
                 <MdStarOutline className="icon" />
                 Favorites
               </Link>
-            </li>
+            </li> */}
             {/* <li>
               <Link
                 to=""
@@ -139,6 +143,9 @@ export default function AsideMenu() {
                 <MdOutlineCloud className="icon" />
                 Storage
               </Link>
+              <div className="progressbar-container">
+                <ProgressBar />
+              </div>
             </li>
           </ul>
         </div>

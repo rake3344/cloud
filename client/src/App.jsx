@@ -4,6 +4,7 @@ import Login from './components/Login/Login'
 import Register from './components/Register/Register'
 import { ToastContainer} from "react-toastify"
 import 'react-toastify/dist/ReactToastify.css'
+// import '@coreui/coreui/dist/css/coreui.min.css'
 import Home from './components/Home/Home'
 import Destacados from './components/Destacados/Destacados'
 import Share from './components/Share/Share'

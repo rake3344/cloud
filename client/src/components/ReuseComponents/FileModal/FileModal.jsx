@@ -5,16 +5,17 @@ import "./FileModal.css";
 export default function FileModal({ fileUrl, fileType, fileName,  closeModal }) {
 
 
-    console.log(fileUrl);
-
     const renderFile = () => {
         if (fileType == "png" || fileType == "jpeg" || fileType == "jpg") {
             return (
-                <img src={fileUrl} alt="image" />
+                <div className="img-file">
+                    <img src={fileUrl} alt="image" />
+                </div>
             )
         } else if (fileType == "pdf") {
             return (
-                <iframe src={fileUrl} title="PDF Viewer" width="100%"  height="500px"></iframe>
+                // <iframe src={fileUrl} title="PDF Viewer" width="100%"  height="500px"></iframe>
+                <embed src={fileUrl} type="application/pdf" width="100%" height="600px" />
             )
         } else {
             return <a href={fileUrl} download={fileName} />
@@ -25,7 +26,7 @@ export default function FileModal({ fileUrl, fileType, fileName,  closeModal }) 
   return (
     <div className='file-modal-container'>
         <div className="file-modal-content">
-            <span onClick={closeModal}>&times;</span>
+            <h4 onClick={closeModal}>X</h4>
             {renderFile()}
         </div>
     </div>

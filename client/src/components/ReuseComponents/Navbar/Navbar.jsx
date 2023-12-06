@@ -31,7 +31,7 @@ export default function Navbar() {
   return (
     <nav className='nav-container'>
         <picture>
-            <img src="../../../../src/assets/cloud.png" alt="cloud image" />
+            <img src="https://res.cloudinary.com/dmhzrxvg5/image/upload/v1701892684/goliacqxqbo2aun468sr.png" alt="cloud image" />
         </picture>
         <div className='avatar-container'>
             <Avatar name={user.name} size="40" round={true} onClick={handleMenuToggle}/>

@@ -28,6 +28,7 @@ import ShareModal from "../ReuseComponents/ShareModal/ShareModal";
 import { getUser } from "../../api/auth";
 import ClipLoader from "react-spinners/ClipLoader"
 import { override } from "../../api/loaderStyle";
+import FileModal from "../ReuseComponents/FileModal/FileModal";
 
 export default function Home() {
   document.title = "home";
@@ -37,14 +38,17 @@ export default function Home() {
   const [openShareModal, setOpenShareModal] = useState(false);
   const [user, setUser] = useState({});
   const [fileLoading, setFileLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [fileUrl, setFileUrl] = useState(null);
+  const [fileType, setFileType] = useState(null);
+  const [fileName, setFileName] = useState(null);
+  const [openFileModal, setOpenFileModal] = useState(false);
 
   useEffect(() => {
     const res = async () => {
       setFileLoading(true);
       const response = await getFiles();
       if (response && response.data.status == 200) {
-        setFiles(response.data.files);
+        setFiles(response.data.files[0].files);
         setFolders(response.data.folders);
         setFileLoading(false);
       } else {
@@ -79,6 +83,16 @@ export default function Home() {
   const handleCloseShareModal = () => {
     setOpenShareModal(false);
   };
+
+  const handleOpenFileModal = () => {
+    setOpenFileModal(!openFileModal);
+  };
+
+  const handleCloseFileModal = () => {
+    setOpenFileModal(false);
+  };
+
+  const newFiles = files.filter(file => file.is_folder_file !== 1)
 
   return (
     <>
@@ -132,7 +146,7 @@ export default function Home() {
                           </TableRow>
                         );
                       })}
-                      {files?.map((file) => {
+                      {newFiles?.map((file) => {
                         let fileIcon;
     
                         if (file.file_type == "pdf") {
@@ -157,7 +171,12 @@ export default function Home() {
     
                         return (
                           <TableRow key={file.id} className="table-row">
-                            <TableCell>
+                            <TableCell className="file-open" onClick={() => {
+                              setFileUrl(file.file_path);
+                              setFileType(file.file_type);
+                              setFileName(file.file_name);
+                              handleOpenFileModal();
+                            }}>
                               {fileIcon}
                               {file.file_name}
                             </TableCell>
@@ -187,7 +206,7 @@ export default function Home() {
                                 </button>
                                 <button
                                   onClick={async () => {
-                                    setDeleteLoading(true);
+                                    setFileLoading(true);
                                     const res = await axios.delete(
                                       `/file/${file.id}`,
                                       {
@@ -199,7 +218,7 @@ export default function Home() {
                                       }
                                     );
                                     if (res.data.status == 200) {
-                                      setDeleteLoading(false);
+                                      setFileLoading(false);
                                       window.location.reload();
                                     } else {
                                       toast.error("Something went wrong", {
@@ -241,10 +260,12 @@ export default function Home() {
           user={user}
         />
       )}
-      {deleteLoading && (
-        <div className="loader" style={override}>
-          <ClipLoader color="black" loading={deleteLoading} size={50} />
-        </div>
+      {openFileModal && (
+        <FileModal fileUrl={fileUrl}
+          fileType={fileType}
+          fileName={fileName}
+          closeModal={handleCloseFileModal} 
+        />
       )}
     </>
   );
